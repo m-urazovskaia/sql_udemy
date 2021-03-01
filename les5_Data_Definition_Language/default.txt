@@ -1,0 +1,26 @@
+# Ограничение default чаще используется, когда есть поля с необязательным заполнением, поэтому, если колонка пустует, мы хотим генерировать нек значения по умолчанию
+
+CREATE TABLE customer
+(
+	customer_id serial,
+	full_name text,
+	status char DEFAULT 'r',
+
+	CONCTRAINT PK_customer_customer_id PRIMARY KEY(customer_id),
+	CONCTRAINT CHK_customer_status CHECK(status = 'r' OR status = 'p')
+);
+
+INSERT INTO customer (full_name)
+VALUES
+('name')		# Сработает
+('name', 'd');  # Вызовет ошибку
+
+SELECT * FROM customerж
+
+# Удалить default:
+ALTER TABLE customer
+ALTER COLUMN status DROP DEFAULT;
+
+# Добавить default:
+ALTER TABLE customer
+ALTER COLUMN status SET DEFAULT 'r;

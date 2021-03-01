@@ -1,0 +1,28 @@
+SELECT company_name, product_name
+FROM suppliers
+LEFT JOIN products ON suppliers.supplier_id = products.supplier_id;
+
+
+SELECT company_name, order_id
+FROM customers
+JOIN orders ON orders.customer_id = customers.customer_id
+WHERE order_id IS NULL;
+# Здесь записей не будет, лучше исп-ть 'left_join':
+SELECT company_name, order_id
+FROM customers
+LEFT JOIN orders ON orders.customer_id = customers.customer_id
+WHERE order_id IS NULL;
+# Это запись эквивалентна следующей:
+SELECT company_name, order_id
+FROM orders
+RIGHT JOIN customers ON orders.customer_id = customers.customer_id
+WHERE order_id IS NULL;
+
+
+SELECT last_name, order_id
+FROM employees
+LEFT JOIN orders ON orders.employee_id = employees.employee_id
+WHERE order_id IS NULL;
+
+
+FULL JOIN - это LEFT & RIGHT объединенные. В не зависимости от того, есть ли сопоставление по ключу в правой или левой таблицах, данные из соответствующей таблицы, где данные есть, попадут в результирующий набор

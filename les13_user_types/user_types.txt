@@ -1,0 +1,47 @@
+Домен - пользовательские типы данных с ограничениями
+Составной тип - тип, объединяющий логически взаимосвязанные данные без создания полноценной таблицы.
+Перечисление - позволяет эмулировать(имитировать?) простейшие справочные таблицы
+
+CREATE DOMAIN domain_name AS data_type CONSTRAINTS;
+
+CREATE DOMAIN text_no_space_null AS TEXT NOT NULL CHECK (value !~'\s');
+
+ALTER DOMAIN domain_name ADD CONSTRAINT new_constraint [NOT VALID]
+ALTER DOMAIN domain_name VALIDATE CONSTRAINT new_constraint 
+
+
+CREATE DOMAIN text_no_space_null TEXT NOT NULL CHECK (value ~ '^(?!\s*$).+');
+
+CREATE TABLE agent(
+	first_name text_no_space_null,
+	last_name text_no_space_null
+);
+
+INSERT INTO agent
+VALUES ('bob', 'taylor');
+
+SELECT * FROM agent;
+
+INSERT INTO agent
+VALUES ('', 'taylor'); -- Ошибка, нарушается ограничение
+
+INSERT INTO agent
+VALUES ('NULL', 'taylor'); -- Ошибка, не допускается значение 'null'
+
+INSERT INTO agent
+VALUES ('  ', 'taylor'); -- Ошибка, нарушается ограничение
+
+INSERT INTO agent
+VALUES ('bob junior', 'taylor'); -- Выполнено
+
+DROP TABLE IF EXISTS agent;
+DROP DOMAIN IF EXISTS text_no_space_null;
+
+ALTER DOMAIN text_no_space_null DROP CONSTRAINT text_no_space_null_length32
+ALTER DOMAIN text_no_space_null ADD CONSTRAINT text_no_space_null_length32
+	CHECK (length(value) <= 32) NOT VALID;
+
+ALTER DOMAIN text_no_space_null VALIDATE CONSTRAINT text_no_space_null_length32; -- чтобы понять, есть ли ошибки
+
+DELETE FROM agent
+WHERE length(first_name) > 32;

@@ -1,0 +1,8 @@
+SELECT DISTINCT city, country 
+FROM employees
+ORDER BY city, country ASC (# по умолчанию по возрастанию)
+
+SELECT DISTINCT city, country 
+FROM employees
+ORDER BY city, country DESC (# по убыванию)
+

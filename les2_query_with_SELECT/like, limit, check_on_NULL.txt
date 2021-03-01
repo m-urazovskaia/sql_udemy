@@ -1,0 +1,31 @@
+# '%' - placeholder (заполнитель), означающий 0, 1 и более символов
+# '_' - ровно один любой символ
+
+LIKE 'U%' - строки, начинающиеся на U
+LIKE '%a' - строки, оканчивающиеся на a
+LIKE '%John%' - строки, содержащие John
+LIKE 'J%n' - строки, начинающиеся на J и оканчивающиеся на n
+
+LIKE '_oh_' - строки, где 2,3 символы - oh, а 1 и 4 - любые
+LIKE '_oh%' - строки, где 2,3 символы - oh, первый - любой, но только один, а последних может быть много
+
+
+SELECT last_name, first_name
+FROM employees
+WHERE first_name LIKE '%n'
+
+
+# LIMIT показывает необходимое количество записей. Указывается в самом конце запроса
+
+SELECT product_name, unit_price
+FROM products
+LIMIT 10
+
+
+SELECT ship_city, ship_region, ship_country
+FROM orders
+WHERE ship_region IS NULL
+
+SELECT ship_city, ship_region, ship_country
+FROM orders
+WHERE ship_region IS NOT NULL

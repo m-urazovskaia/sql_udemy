@@ -1,0 +1,34 @@
+SELECT * 
+FROM table
+WHERE condition1 AND/OR condition2
+# WHERE в основном работает с операторами сравнения. В SQL ставится только один знак "=""
+
+SELECT COUNT(*) 
+FROM orders
+WHERE condition BETWEEN smth1 AND smth2
+# BETWEEN - не строгое равенство. Можно использовать с датами
+
+SELECT company_name, contact_name, phone
+FROM customers
+WHERE country = 'USA';
+
+SELECT *
+FROM products
+WHERE unit_price > 20;
+
+
+SELECT *
+FROM products
+WHERE discontinued = 1;
+
+
+SELECT *
+FROM customers
+WHERE city <> 'Berlin';
+# Оператор <> обозначает "не равно" и эквивалентен оператору !=
+
+SELECT *
+FROM orders
+WHERE order_date > '1998-03-01';
+# Дату необходимо заключать в ''
+

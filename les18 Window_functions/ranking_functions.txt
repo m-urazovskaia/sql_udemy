@@ -1,0 +1,59 @@
+ROW_NUMBER - присвоение уникального значения строкам
+RANK - присвоение ранга(веса) строкам с пропусками
+DENSE_RANK - присвоение ранга(веса) строкам без пропусков
+LAG - присвоение значения текущей строке, основанное на значении в предыдущей
+LEAD - LAG наоборот: присвоение значения текущей строке, основанное на значении в следующей
+
+в LEAD и LAG можно передавать смещение (offset)
+
+SELECT * FROM products;
+
+RANK работает идентично ROW_NUMBER, если набор уникальный, например, если прописать RANK() OVER (ORDER BY product_id) - сработает как и 'row_number'
+
+
+SELECT product_name, units_in_stock,
+	RANK() OVER(ORDER BY product_id) -- если OVER() оставить пустым, rank будет одинаковый у всех строк
+FROM products;
+
+
+SELECT product_name, units_in_stock,
+	RANK() OVER(ORDER BY units_in_stock) -- здесь мы увидим gap - промежуток м/у рангами, в промежутке ранг будет одинаковым, но следующий ранг будет с правильным порядковым номером (1 1 1 4 5 6 6 8)
+FROM products;
+
+
+SELECT product_name, units_in_stock,
+	DENSE_RANK() OVER(ORDER BY units_in_stock) -- здесь gap не учитываются (1 1 1 2 3 4 4 5)
+FROM products;
+
+
+SELECT product_name, unit_price,
+	DENSE_RANK() OVER(
+		ORDER BY
+			CASE
+				WHEN unit_price > 80 THEN 1
+				WHEN unit_price > 30 AND unit_price < 80 THEN 2
+				ELSE 3
+			END
+	) AS ranking
+FROM products
+ORDER BY unit_price DESC;
+
+
+-- Просмотр отличий текущей цены и предыдущей ('lag' - отставание)
+SELECT product_name, unit_price,
+	LAG(unit_price) OVER(ORDER BY unit_price DESC) - unit_price AS price_lag
+FROM products
+ORDER BY unit_price DESC;
+
+
+-- ('lead' удобен при анализе данных с временными метками для более наглядного отчета). Просмотр, на сколько следующая цена убегает от предыдущей
+SELECT product_name, unit_price,
+	LEAD(unit_price) OVER(ORDER BY unit_price) - unit_price AS price_lag
+FROM products
+ORDER BY unit_price;
+
+-- можно сделать offset, чтобы посмотреть разницу между не близлежащими данными
+SELECT product_name, unit_price,
+	LEAD(unit_price, 2) OVER(ORDER BY unit_price) - unit_price AS price_lag
+FROM products
+ORDER BY unit_price;

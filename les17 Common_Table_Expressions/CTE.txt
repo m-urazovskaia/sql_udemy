@@ -1,0 +1,60 @@
+Позволяют строить временные таблицы (или представления) в рамках большого запроса
+
+При присваивании имени такой временной таблице (подзапросу), мы можем ее переиспользовать
+
+WITH name AS (
+	SELECT clause
+)
+SELECT "using WITH part"
+
+Внутри подзапроса можно использовать INSERT, UPDATE, DELETE
+
+CTE выполняется единожды, результат кешируется (не всегда, см. план выполнения)
+
+Длинные и сложные запросы можно отрефакторить в CTE, повышая чистоту и читаемость кода
+
+
+SELECT company_name
+FROM suppliers
+WHERE country IN (SELECT country FROM customers);
+
+-- ИЛИ --
+
+WITH customer_countries AS
+(
+	SELECT country FROM customers
+)
+SELECT company_name
+FROM suppliers
+WHERE country IN (SELECT * FROM customer_countries);
+
+
+--Выбрать всех suppliers, которые не посьавляли продукты с 1998-02-01 по 1998-02-04
+SELECT company_name
+FROM suppliers
+WHERE NOT EXISTS
+	(
+		SELECT product_id
+		FROM products
+		JOIN order_details USING(product_id)
+		JOIN orders USING(order_id)
+		WHERE suppliers.supplier_id = prodacts.supplier_id AND
+			order_date BETWEEN '1998-02-01' AND '1998-02-04'
+	);
+
+-- ИЛИ --
+
+WITH filtered AS
+(
+	SELECT company_name, suppliers.supplier_id
+	FROM products
+	JOIN order_details USING(product_id)
+	JOIN orders USING(order_id)
+	JOIN suppliers USING(supplier_id)
+	WHERE order_date BETWEEN '1998-02-01' AND '1998-02-04'
+)-- ,
+-- cte2 AS(),
+-- cte3 AS()
+SELECT company_name
+FROM suppliers
+WHERE supplier_id NOT IN (SELECT supplier_id FROM filtered);

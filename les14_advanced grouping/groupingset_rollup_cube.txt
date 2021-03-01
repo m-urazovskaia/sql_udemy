@@ -1,0 +1,51 @@
+GROUP BY даёт возможность делать простые группировки. Для отчетности (подитоги, общие итоги) не подходит.
+
+Для решения этих задач есть GROUPING SET, ROLLUP, CUBE
+
+Набор столбцов в GROUP BY - и есть GROUPING SET
+
+GROUP BY GROUPING SET ((col_a), (col_a, col_b)) - вернет группировку по 													(col_a) и по (col_a, col_b)
+
+ROLLUP генерирует агрегированный набор для иерархии значений в столбцах, указанных в скобках (обязательно в порядке следования) - просто сокращенный вариант GROUPING SET:
+ROLLUP(col_a, col_b) - полный эквивалент предыдущей записи
+
+CUBE генерирует агрегированный набор для всех комбинаций значений в стобцах, указанных в скобках (порядок следования неважен)
+
+SELECT supplier_id, SUM(units_in_stock)
+FROM products
+GROUP BY supplier_id
+ORDER BY supplier_id;
+
+SELECT supplier_id, category_id, SUM(units_in_stock)
+FROM products
+GROUP BY supplier_id, category_id
+ORDER BY supplier_id;
+
+SELECT supplier_id, category_id, SUM(units_in_stock)
+FROM products
+GROUP BY GROUPING SETS ((supplier_id), (supplier_id, category_id))
+ORDER BY supplier_id, category_id NULLS FIRST;
+
+
+
+SELECT supplier_id, SUM(units_in_stock)
+FROM products
+GROUP BY ROLLUP(supplier_id); -- 'rollup' еще дает общий итог, grand total
+
+SELECT supplier_id, category_id, SUM(units_in_stock)
+FROM products
+GROUP BY ROLLUP(supplier_id, category_id) -- в этом случае получаем 													группировку по 'supplier_id', 												'supplier_id' и 'category_id'
+ORDER BY supplier_id, category_id NULLS FIRST;
+
+SELECT supplier_id, category_id, reorder_level, SUM(units_in_stock)
+FROM products
+GROUP BY ROLLUP(supplier_id, category_id, reorder_level)
+ORDER BY supplier_id, category_id NULLS FIRST;
+
+
+
+SELECT supplier_id, category_id, SUM(units_in_stock)
+FROM products
+GROUP BY CUBE(supplier_id, category_id) -- в этом случае получаем 													группировку по 'supplier_id', 												'supplier_id' и 'category_id', и 											отдельно по 'category_id'
+ORDER BY supplier_id, category_id NULLS FIRST;
+

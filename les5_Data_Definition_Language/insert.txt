@@ -1,0 +1,23 @@
+# Для полной вставки
+INSERT INTO author
+VALUES (10, 'John Silver', 4.5);
+
+# Для частичной вставки
+INSERT INTO author (author_id, full_name)
+VALUES 
+(11, 'Bob Gray'),
+(12, 'Andrew Black'),
+(13, 'Mike Nilson');
+
+# Делаем выборку и сразу помещаем ее в новую таблицу. Но дополнить уже существующую таблицу дважды не получится
+SELECT *
+INTO best_authors
+FROM author
+WHERE raiting >= 4.5
+
+SELECT * FROM best_authors
+
+# Чтобы выборку вставить lданные из одной таблицы в другую
+INSERT INTO best_authors
+SELECT * FROM author
+WHERE raiting < 4.5

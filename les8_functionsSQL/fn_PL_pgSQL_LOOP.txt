@@ -1,0 +1,73 @@
+WHILE expression
+LOOP
+	logic
+END LOOP;
+
+LOOP
+	EXIT WHEN expression -- 'exit' - аналог 'break'
+	logic
+END LOOP;
+
+FOR counter IN a..d[BY x --необязательно(исп-ся без скобок)]
+LOOP
+	logic
+END LOOP;
+
+CONTINUE WHEN expression
+
+# Числа Фиббоначчи
+CREATE FUNCTION fib(n int) RETURNS int AS $$
+DECLARE
+	counter int = 0;
+	i int = 0;
+	j int = 1;
+BEGIN
+	IF n < 1 THEN
+		RETURN 0;
+	END IF;
+
+	WHILE counter < n
+	LOOP
+		counter = counter + 1;
+		SELECT j, i+j INTO i, j;
+	END LOOP;
+
+	RETURN i;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT fib(5);
+
+
+CREATE FUNCTION fib(n int) RETURNS int AS $$
+DECLARE
+	counter int = 0;
+	i int = 0;
+	j int = 1;
+BEGIN
+	IF n < 1 THEN
+		RETURN 0;
+	END IF;
+
+	LOOP
+		EXIT WHEN counter > n;
+		counter = counter + 1;
+		SELECT j, i+j INTO i, j;
+	END LOOP;
+
+	RETURN i;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT fib(5);
+
+
+# анонимный кусок кода, ничего не возвращающий
+DO $$
+BEGIN
+	FOR counter IN REVERCE 5..1
+	LOOP
+		RAISE NOTICE 'Counter: %', counter;
+	END LOOP;
+END$$ ;
+

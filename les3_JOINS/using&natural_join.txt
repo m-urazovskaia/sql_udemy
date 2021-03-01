@@ -1,0 +1,14 @@
+SELECT contact_name, company_name, phone, first_name, last_name, title, order_date, product_name, ship_country, products.unit_price, quantity, discount
+FROM orders
+JOIN order_details USING(order_id) -- ON orders.order_id = order_details.order_id
+JOIN products USING(product_id) -- ON order_details.product_id = products.product_id
+JOIN customers USING(customer_id) -- ON orders.customer_id = customers.customer_id
+JOIN employees USING(employee_id) -- ON orders.employee_id = employees.employee_id
+WHERE ship_country = 'USA';
+# 'using' предполагает использование любого join (inner/left/right)
+
+
+SELECT order_id, customer_id, first_name, last_name, title
+FROM orders
+NATURAL JOIN employees;
+# 'natural_join' = 'inner_join', а само соединение проходит по всем столбцам, которые проименованны одинаково. Такой код неявен, лучше указывать по акому столбцу происходит соединение. Если в последствии будут добавлены столбцы с одинаковыми именами, 'natural_join' начнет выдавать ошибки

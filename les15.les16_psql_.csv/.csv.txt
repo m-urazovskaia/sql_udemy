@@ -1,0 +1,12 @@
+Множество датасетов хранятся в виде .csv
+
+http://www.kaggle.com/datasets
+
+Создаем базу банных
+
+Создаем таблицу с полями, типы данных которых должны соответствовать "колонкам" из .csv
+
+Открываем psql и подаем команды:
+	psql db_connection_string
+	\copy Table_name(fields) FROM 'csv_file_path' DELIMITER ',' CSV HEADER;
+	

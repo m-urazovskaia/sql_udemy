@@ -1,0 +1,30 @@
+Операторы сравнение:
+	=, >, <
+
+Containment-операторы:
+	@> true, если левый массив включает все элементы правого
+	<@ true, если правый массив включает все элементы левого
+
+Оператор пересечения:
+	&& true, если в массивах есть хотя бы один одинаковый элемент
+
+SELECT ARRAY[1,2,3,4] = ARRAY[1,2,3,4]; --true
+SELECT ARRAY[1,2,4,3] = ARRAY[1,2,3,4]; --false
+
+SELECT ARRAY[1,2,4,3] > ARRAY[1,2,3,4]; --true
+SELECT ARRAY[1,2,3,4] > ARRAY[1,2,5,4]; --false
+SELECT ARRAY[1,2,3,4] > ARRAY[1,2,3,4]; --false
+
+SELECT ARRAY[1,2,4,3] @> ARRAY[1,2]; --true
+SELECT ARRAY[1,2,4,3] @> ARRAY[1,2, 5]; --false
+
+SELECT ARRAY[1,2] <@ ARRAY[1,2,5]; --true
+SELECT ARRAY[1,2,6] <@ ARRAY[1,2,5]; --false
+
+SELECT ARRAY[1,2,3,4] && ARRAY[1,2]; --true
+SELECT ARRAY[1,2,3,4] && ARRAY[5]; --false
+
+
+SELECT *
+FROM chess_game
+WHERE moves && ARRAY['d4'];

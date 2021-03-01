@@ -1,0 +1,27 @@
+CREATE VIEW heavy_orders AS
+SELECT *
+FROM orders
+WHERE freight > 50;
+
+select *
+from heavy_orders
+order by freight;
+
+CREATE OR REPLACE VIEW heavy_orders AS
+SELECT *
+FROM orders
+WHERE freight > 100;
+
+SELECT MAX(order_id)
+FROM orders;		-- смотрим max кол-во строк (11077)
+
+INSERT INTO heavy_orders
+VALUES (11078, 'VINET', 5, '2019-12-10', '2019-12-15', '2019-12-14', 1, 120, 'Hanari Carnes', 'Rua do Paco', 'Bern', null, 3012, 'Switzerland');
+
+SELECT *
+FROM heavy_orders
+ORDER BY order_id DESC;
+
+# То есть определенным образом в 'view' можно добавить данные. Но удалить те данные, которые есть в основной таблице, но их нет во 'view', нельзя:
+DELETE FROM heavy_orders
+WHERE freight < 0.05	-- ошибки не будет, но ничего не удалится(так как сейчас во 'view' freight > 100)

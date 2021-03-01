@@ -1,0 +1,62 @@
+RETURNS SETOF data_type - возврат n-значений типа data_type
+RETURNS SETOF table - если нужно вернуть все столбцы из таблицы или пользовательского типа
+RETURNS SETOF record - только когда типы колонок в результирующем наборе заранее неизвестны
+RETURNS TABLE(column_name data type,...) - то же, что и setof table, но имеем возможность явно указать возвращаемые столбцы
+Возврат через out-параметры
+
+CREATE OR REPLACE FUNCTION get_average_prices_by_prod_categories()
+		RETURNS SETOF double precision AS $$
+	SELECT AVG(unit_price)
+	FROM products
+	GROUP BY category_id
+$$ LANGUAGE SQL;
+
+SELECT * FROM get_average_prices_by_prod_categories() as average_prices;
+
+
+CREATE OR REPLACE FUNCTION get_avg_prices_by_prod_cats(OUT sum_price real, OUT avg_price float8)
+		RETURNS SETOF RECORD AS $$ --без return будет возможен возврат только одного значения(первого встретившегося)
+	SELECT SUM(unit_price), AVG(unit_price)
+	FROM products
+	GROUP BY category_id
+$$ LANGUAGE SQL;
+
+SELECT sum_price FROM get_avg_prices_by_prod_cats(); --можно вызвать лишь один аргумент, ошибки не будет
+SELECT sum_price AS sum_of, avg_price FROM get_avg_prices_by_prod_cats();
+
+
+CREATE OR REPLACE FUNCTION get_avg_prices_by_prod_cats()
+		RETURNS SETOF RECORD AS $$
+	SELECT SUM(unit_price), AVG(unit_price)
+	FROM products
+	GROUP BY category_id
+$$ LANGUAGE SQL;
+
+SELECT sum_price FROM get_avg_prices_by_prod_cats(); -- ОШИБКА
+SELECT sum_price AS sum_of, avg_price FROM get_avg_prices_by_prod_cats(); -- ОШИБКА
+SELECT * FROM get_avg_prices_by_prod_cats(); -- ОШИБКА
+SELECT * FROM get_avg_prices_by_prod_cats() AS (sum_price real, avg_price float8);
+
+
+CREATE OR REPLACE FUNCTION get_customers_by_country(customer_country varchar)
+		RETURNS TABLE(char_code char, company_name varchar) AS $$
+	SELECT customer_id, company_name
+	FROM customers
+	WHERE country = customer_country
+$$ LANGUAGE SQL;
+
+SELECT * FROM get_customers_by_country('USA');
+SELECT company_name FROM get_customers_by_country('USA');
+SELECT char_code, company_name FROM get_customers_by_country('USA');
+
+
+CREATE OR REPLACE FUNCTION get_customers_by_country(customer_country varchar)
+		RETURNS SETOF customers AS $$
+	-- выбирать необходимо в этом случае все столбцы, выборка конкретных не будет работать
+	SELECT *
+	FROM customers
+	WHERE country = customer_country
+$$ LANGUAGE SQL;
+
+SELECT * FROM get_customers_by_country('USA');
+SELECT company_name FROM get_customers_by_country('USA');

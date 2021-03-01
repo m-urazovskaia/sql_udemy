@@ -1,0 +1,7 @@
+# Ограничение вставки противоречащих данных
+
+CREATE OR REPLACE VIEW heavy_orders AS
+SELECT *
+FROM orders
+WHERE freight > 100
+WITH (LOCAL --или-- CASCADE) CHECK OPTION;

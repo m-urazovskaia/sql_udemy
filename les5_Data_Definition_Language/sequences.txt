@@ -1,0 +1,38 @@
+# Последовательность / счетчик
+
+CREATE SEQUENCE seq1;
+
+SELECT nextval('seq1'); # чтобы сгенер след знач в 							последовательности, вызывает 						 эту f и передаем в кач 							аргумента имя посл-ти. По 							умолчанию будет генерир 							единицу
+SELECT currval('seq1'); # возвращает текущее значение
+SELECT lastval(); # не принимает аргумент, а 						  возвращает последнее значение, 					  сгенерир-е какой-либо из 							  последовательностей в текущей 					  сессии. В данном случае вернет 1
+
+# Проманипулируем послед-тью, используя 'setval'
+1 аргумент - имя посл-ти 
+2 аргумент - какое значение установить в посл-ти
+3 аргумент - boolean, по умолчанию True
+
+SELECT setval('seq1', 16);
+SELECT currval('seq1'); # возвращает 16
+SELECT nextval('seq1'); # возвращает 17
+
+SELECT setval('seq1', 16, false);
+SELECT currval('seq1'); # возвращает 17 (старое 							значение с пред сессии)
+SELECT nextval('seq1'); # возвращает 16 (установ-ое 						в setval)
+
+CREATE SEQUENCE IF NOT EXISTS seq2 INCREMENT 16;
+SELECT nextval('seq2'); # 1е знач всегда единица, 							затем + 16 (то есть 17)
+
+CREATE SEQUENCE IF NOT EXISTS seq3
+INCREMENT 16
+MINVALUE 0
+MAXVALUE 128
+START WITH 0;
+
+SELECT nextval('seq3'); # 0-16-32-48-...-128
+
+ALTER SEQUENCE seq3 RENAME TO seq4;
+ALTER SEQUENCE seq4 RESTART WITH 16;
+
+SELECT nextval('seq4'); #начнет с 16
+
+DROP SEQUENCE seq4;

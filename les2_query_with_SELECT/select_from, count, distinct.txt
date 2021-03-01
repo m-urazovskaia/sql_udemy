@@ -1,0 +1,16 @@
+SELECT * 
+FROM book
+# '*' берет данные из всех столбцов таблицы
+
+SELECT product_id, product_name, unit_price * units_in_stock
+FROM product
+# указаны определенные столбцы через запятую, с ними также можно проводить мат операции
+
+SELECT DISTINCT city, country 
+FROM employees
+# DISTINCT показывает все уникальные значения
+
+SELECT COUNT(DISTINCT country)
+FROM employees
+# COUNT считает кол-во строк(не учитывает уникальность), можно объединить с DISTINCT, который всегда ставится перед столбцом
+

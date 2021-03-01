@@ -1,0 +1,25 @@
+-- 1. Вывести отчёт показывающий по сотрудникам суммы продаж SUM(unit_price*quantity),
+-- и сопоставляющий их со средним значением суммы продаж по сотрудникам (AVG по SUM(unit_price*quantity)),
+-- сортированный по сумме продаж по убыванию.
+WITH sales_table as (SELECT employee_id, SUM(unit_price*quantity) as sales_sum
+	FROM employees
+	JOIN orders USING(employee_id)
+	JOIN order_details USING(order_id)
+	GROUP BY employee_id -- subquery
+)
+SELECT *, AVG(sales_sum) OVER ()
+FROM sales_table
+ORDER BY sales_sum DESC
+-- ИЛИ --
+SELECT employee_id, sales_amount, AVG(sales_amount) OVER() as avg_sales_amount
+FROM (
+	SELECT DISTINCT employee_id, SUM(unit_price*quantity) OVER (PARTITION BY employee_id) as sales_amount
+	FROM orders
+	JOIN order_details USING(order_id)
+	) subquery
+ORDER BY sales_amount DESC;
+
+-- 2. Вывести ранг сотрудников по их зарплате, без пропусков. Также вывести имя, фамилию и должность.
+SELECT CONCAT(first_name, ' ', last_name) as employee, title, salary,
+	DENSE_RANK() OVER(ORDER BY salary DESC)
+FROM employees;

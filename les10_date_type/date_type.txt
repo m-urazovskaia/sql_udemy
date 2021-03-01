@@ -1,0 +1,41 @@
+CAST(expression AS target_type) - совместимо со стандартом
+expression::target_type - несовместимо со стандартом
+
+CREATE OR REPLACE FUNCTION type_testing(money_val float8) RETURNS void AS
+$$
+BEGIN
+	RAISE NOTICE 'ran %', money_val;
+END;
+$$ LANDUAGE plpgsql;
+
+SELECT type_testing(0.5);
+SELECT type_testing(0.5::float4); - работает корректно, т. к. 0.5 умещается 									во float4
+SELECT type_testing(1); - произойдет неявное преобразование 1 во float8
+
+
+CREATE OR REPLACE FUNCTION type_testing_2(money_val int) RETURNS void AS
+$$
+BEGIN
+	RAISE NOTICE 'ran %', money_val;
+END;
+$$ LANDUAGE plpgsql;
+
+SELECT type_testing_2(1);
+SELECT type_testing_2(0.5); - ошибка
+SELECT type_testing_2(0.5::int); - потеря точности(то есть в ran придет 1)
+SELECT type_testing_2(0.4); - потеря точности(то есть в ran придет 0)
+-- такая запись - это тоже самое, что и
+SELECT type_testing_2(CAST(0.4 AS int));
+
+SELECT type_testing_2('1.5'); - Ошибка
+SELECT type_testing_2('1.5':: int); - Ошибка
+SELECT type_testing_2('1.5'::numeric:: int); - Сработает, округлив до 2
+SELECT type_testing_2('3':: int); - Сработает
+
+SELECT 50! AS big_factorial;
+-- ИЛИ --
+SELECT CAST(50 AS bigint)! AS big_factorial;
+
+SELECT 'abc' || 1; -- abc1
+
+SELECT ' 10 ' = 10 - Сработает, вернет true. Интерпретатор в дан сл 							преобразует левую часть

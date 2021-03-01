@@ -1,0 +1,52 @@
+Позволяют обрабатывать группы строк без образования группировок в результирующем наборе (т. е. без group by)
+
+Делятся на:
+	агрегатные SUM, AVG, MIN, MAX, COUNT и т.д.
+	ранжирования ROW_NUMBER, RANK, LAG, LEAD и т.д.
+
+Отрабатывают после JOIN, WHERE, GROUP BY, HAVING, но перед ORDER BY
+
+function OVER(expression - необязательно)
+
+function OVER([PARTITION(разделение) BY expression], [ORDER BY expression])
+
+Если не задан 'ORDER BY', то идет подсчет по всей 'partition' один раз, и результат будет писаться один и тот же во все строки, то есть если мы, н-р, суммируем, полная сумма по группе будет вычислена и будет записана в каждую из строк в этой группе, одно и то же значение.
+
+Если задан 'ORDER BY', подсчет в каждой строке идет от начала 'partition' до ее конца, то есть нарастающим итогом - для каждой строки идет подсчет в отдельном фрейме (наборе строк). В этом случае набор строк - от начала 'partition' до ее конца
+
+
+-- Посмотреть средние цены по категориям
+SELECT category_id, AVG(unit_price) AS avg_price
+FROM products
+GROUP BY category_id
+LIMIT 5;
+
+-- Сравнить цену каждого продукта со средней в его категории
+SELECT category_id, category_name, product_name, unit_price, AVG(unit_price) OVER (PARTITION BY category_id) AS avg_price
+FROM products
+JOIN categories USING(category_id);
+
+-- Сделать группировку по order_id и посчитать нарастающий итог по product_id (order_id может дублироваться из-за разных продуктов в нем)
+SELECT order_id, order_date, product_id, product_name, customer_id, unit_price AS sub_total, SUM(unit_price) OVER(PARTITION BY order_id ORDER BY product_id) AS sale_sum
+FROM orders
+JOIN order_details USING(order_id)
+JOIN products USING(product_id)
+ORDER BY order_id;
+
+-- Посчитать нарастающий итог по всем заказам вместе. По чему делать 'partition'?
+-- Для этого необходимо сделать "сквозняком" id для всех заказов с помощью функции 'row_number'
+SELECT order_id, order_date, product_id, product_name, customer_id, unit_price AS sub_total, SUM(unit_price) OVER(ORDER BY order_id) AS sale_sum
+FROM orders
+JOIN order_details USING(order_id)
+JOIN products USING(product_id)
+ORDER BY order_id; -- НЕ РАБОТАЕТ, НЕТ НАРАСТАЮЩЕГО ИТОГА
+
+SELECT order_id, order_date, product_id, product_name, customer_id, unit_price AS sub_total, SUM(unit_price) OVER(ORDER BY row_id) AS sale_sum
+FROM (
+	SELECT order_id, order_date, product_id, product_name, customer_id, 	order_details.unit_price, ROW_NUMBER() OVER() AS row_id
+	FROM orders
+	JOIN order_details USING(order_id)
+	JOIN products USING(product_id)
+) subquery
+ORDER BY order_id;
+

@@ -1,0 +1,36 @@
+# В 'WHERE' необходимо указать именно ту строку, которую надо проupdatить
+UPDATE author
+SET full_name = 'Elias', rating = 5
+WHERE author_id = 1;
+
+DELETE FROM author
+WHERE rating < 4.5
+
+DELETE FROM author; -- удалить все строки/ Остаются логи, указывающие, что было удалено
+
+TRUNCATE TABLE author; -- логов не остается
+
+RETURNING (после какой-либо команды, н-р, delete, update, insert и т.д. возвращает данные по модифицированной строке)
+CREATE TABLE public.book
+(
+	book_id int GENERATED ALWAYS AS IDENTITY NOT NULL,
+	title text NOT NULL,
+	isbn varchar(32) NOT NULL,
+	publisher_id int NOT NULL,
+
+	CONSTRAINT PK_book_book_id PRIMARY KEY(book_id)
+);
+
+INSERT INTO book (title, isbn, publisher_id)
+VALUES('title', 'isbn', 3)
+RETURNING * / column  -- сразу возвращает данные
+
+
+UPDATE author
+SET full_name = 'Walter', rating = 5
+WHERE author_id = 1
+RETURNING author_id
+
+DELETE FROM author
+WHERE rating = 5
+RETURNING * -- показывает удаленную строку

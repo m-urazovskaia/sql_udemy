@@ -1,0 +1,74 @@
+Составной тип - тип данных, состоящий из нескольких полей, исмеющих свой тип
+
+Нельзя задавать ограничения (constraints). Поэтому не так часто используется в таблицах
+
+Часто исп-ся для возврата данных из функций (н-р, при возврате out-параметрами двух значений)
+
+Чаще всего составной тип не нужен, достаточно таблицы!
+
+CREATE TYPE type_name AS (
+	field1 type,
+	field2 type
+)
+
+Чтобы создать экземпляр:
+'(1,2,"text")' или ROW(1,2,'text')
+
+DROP IF EXISTS TYPE type_name[CASCADE]
+
+drop function if exists get_price_boundaries;
+create or replace function get_price_boundaries(out max_price real, out min_price real) returns setof record as $$
+	select max(unit_price), min(unit_price)
+	from products
+$$ language sql;
+
+select * from get_price_boundaries();
+
+ТОЖЕ САМОЕ С ИСП_НИЕМ ТИПА:
+
+CREATE TYPE price_bounds AS (
+	max_price real,
+	min_price real
+);
+
+CREATE FUNCTION get_price_boundaries() RETURNS SETOF price_bounds AS $$
+	SELECT MAX(unit_price), MIN(unit_price)
+	FROM products
+$$ LANGUAGE sql;
+
+SELECT * FROM get_price_boundaries();
+
+Пример для комплексных чисел (с действительной и мнимой частями)
+CREATE TYPE complex AS (
+	r float8, -- действительные R
+	i float8 -- мнимая единица
+);
+
+CREATE TABLE math_calcs (
+	math_id serial,
+	val complex
+);
+
+INSERT INTO math_calcs(val)
+VALUES
+(ROW(3.0, 4.0)),
+(ROW(2.0, 1.0));
+
+SELECT * FROM math_calcs;
+
+SELECT (val).r FROM math_calcs;
+SELECT (math_calcs.val).r FROM math_calcs;
+
+SELECT (val).* FROM math_calcs;
+
+UPDATE math_calcs
+SET val = ROW(5.0, 4.0)
+WHERE math_id - 1;
+
+UPDATE math_calcs
+SET val.r = 3.0
+WHERE math_id - 1;
+
+UPDATE math_calcs
+SET val.r = (val).r + 3.0
+WHERE math_id - 1;

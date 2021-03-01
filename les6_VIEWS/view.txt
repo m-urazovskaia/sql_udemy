@@ -1,0 +1,28 @@
+# View - сохраненный запрос в виду объекта БД (виртуальная таблица).
+К 'view'можно применять обычный select, join
+позволяет делать кеширование, сокращает сложные запросы и тд
+скрыть нек инфу от групп пользователей
+
+- временные
+- рекурсивные
+- обновляемые
+- материализуемые
+
+CREATE VIEW view_name AS
+SELECT select_statement
+
+# При изменении представлений(views) можно лишь добавить новые столбцы, нельзя удалить существующие, поменять их имена, порядок их следования
+
+CREATE OR REPLACE VIEW view_name AS
+SELECT select_statement
+
+# Можно переименовывать
+ALTER VIEW old_view_name RENAME TO new_view_name
+
+# Можно удалять
+DROP VIEW [IF EXISTS] view_name
+
+# Модифициравать данные ч/з view можно, если исп-ся только одна таблица в FROM и нет:
+DISTINCT, GROUP BY, HAVING, UNION, INTERSECT, EXEPT, LIMIT
+нет оконных функций, MIN, MAX, SUM, COUNT, AVG
+WHERE исп-ть можно

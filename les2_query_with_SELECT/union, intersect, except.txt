@@ -1,0 +1,23 @@
+# Операции на множествах
+# union - объединение
+# intersect - пересечение 
+# except - исключение
+
+
+SELECT country
+FROM customers
+UNION           # UNION ALL исп-ся, чтобы не устранялись дубликаты
+SELECT country
+FROM employees;
+
+SELECT country
+FROM customers
+INTERSECT
+SELECT country
+FROM suppliers;
+
+SELECT country
+FROM customers
+EXCEPT
+SELECT country
+FROM suppliers

@@ -1,0 +1,14 @@
+CREATE TABLE table_name
+
+ALTER TABLE table_name  # изменить таблицу
+	ADD COLUMN column_name data_type
+	RENAME TO new_table_name
+	RENAME old_column_name TO new_column_name
+	ALTER COLUMN column_name SET DATA TYPE data_type
+
+DROP TABLE table_name # удалить таблицу
+
+TRUNCATE TABLE table_name # удалить все данные 									внутри таблицы, но не 								может удалить данные, 								если на них есть ссылки
+TRUNCATE TABLE table_name RESTART IDENTITY 			# перезапускает id-шники снова с единицы (по умолчанию идет CONTINUE IDENTITY)
+
+DROP COLUMN column_name

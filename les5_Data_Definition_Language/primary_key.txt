@@ -1,0 +1,50 @@
+CREATE TABLE chair
+(
+	chair_id s_name varchar,
+	dean erial PRIMARY KEY,
+	chair_name varchar,
+	dean varchar
+);
+
+INSERT INTO chair
+VALUES (1, 'name', 'dean');
+
+SELECT * FROM chair;
+
+INSERT INTO chair
+VALUES (1, 'name2', 'dean2'); # не сработает, так 		как 'PRIMARY KEY' не позволит вставить 				повторяющиеся названия ключа. 'PRIMARY KEY' 		накладывает ограничение уникальности.				Также нельзя вставлять в кач значений NULL.
+
+DROP TABLE chair
+CREATE TABLE chair
+(
+	chair_id s_name varchar,
+	dean erial UNIQUE NOT NULL,
+	chair_name varchar,
+	dean varchar
+);
+# 'UNIQUE NOT NULL' почти эквивалентен 'PRIMARY KEY'.	Просто UNIQUE не накладывает ограничения на NULL.	Разница в том, что 'PRIMARY KEY' на всю таблицу  	может быть только один. 'PRIMARY KEY' необходим, 	чтобы эксплицитно (явно) пометить, где у нас 	 	первичный ключ, который зачастую используется для 	 связки с внешним ключом и уникально 			 	идентифицирует строку в целой таблице
+
+SELECT constraint_name
+FROM information_schema.key_column_usage
+WHERE table_name = 'chair'
+	AND table_schema = 'public'
+	AND column_name = 'chair_id'
+# Код, чтобы посмотреть имя ограничения на клонке. Данное имя генерируется автоматически. Можем сделать это сами без использования 'PRIMARY KEY':
+
+CREATE TABLE chair
+(
+	chair_id s_name varchar,
+	dean erial, --PRIMARY KEY,
+	chair_name varchar,
+	dean varcharб
+
+	CONSTRAINT PK_chair_chair_id PRIMARY KEY(chair_id)
+);
+
+# Удалить ограничения из таблицы:
+ALTER TABLE chair
+DROP CONSTRAINT hair_chair_id_key;
+
+# Добавить ограничения или, например, ключ в таблицу:
+ALTER TABLE chair
+ADD PRIMARY KEY(chair_id);

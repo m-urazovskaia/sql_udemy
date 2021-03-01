@@ -1,0 +1,77 @@
+Триггер - объект, который назначает действие на те или иные события
+Триггеры могут реагировать как на построчное изменение (множественное срабатывание), так и единожды на все изменения сразу
+
+Сценарии использования триггеров:
+	аудит таблиц
+	доп действия в ответ на изменения
+	сложные проверки целостности
+
+Что необходимо:
+	для совершения действия необходима функция
+	и сам объект триггера
+
+Condition:
+[BEFORE, AFTER] [INSERT, UPDATE, DELETE]
+
+Например:
+BEFORE INSERT
+AFTER UPDATE
+BEFORE INSERT OR UPDATE
+
+Удаление: DROP TRIGGER IF EXISTS trigger_name;
+
+Переименование:
+ALTER TRIGGER trigger_name ON table_name;
+RENAME TO new_trigger_name;
+
+Отключение триггера (чтобы не удалять):
+ALTER TABLE table_name
+DISABLE TRIGGER trigger_name;
+
+Отключение всех триггеров на таблице:
+ALTER TABLE table_name
+DISABLE TRIGGER ALL;
+
+
+"ПОСТРОЧНЫЕ ТРИГГЕРЫ"
+
+Создание:
+CREATE TRIGGER trigger_name() condition ON table_name
+FOR EACH ROW EXECUTE PROCEDURE function_name();
+
+Вид функции, привязываемой триггером:
+CREATE FUNCTION func_name() RETURNS trigger AS $$
+BEGIN
+-------
+END;
+$$ LANGUAGE plpgsql;
+	Должна возвращать NULL или запись, соответствующую структуре таблицы, на которую будет навешиваться триггер! Иначе - ошибка.
+
+	Если BEFORE-триггер возвращает NULL, сама операция и AFTER-триггеры будут отменены
+	BEFORE-триггер может изменить строку (INSERT/UPDATE) через NEW и тогда операция и AFTER-триггеры будут работать с измененной строкой
+	Если BEFORE-триггер не "хочет" изменять строку, надо просто вернуть NEW
+	В случае BEFORE-триггера, реагирующего на DELETE, возврат не имеет значения (кроме NULL: отменит DELETE)
+	NEW = null при DELETE, так что если BEFORE-триггер хочет дать ход DELETE, надо вернуть OLD
+
+
+	Через аргумент NEW есть доступ к вставленным и модифицированным строкам (INSERT/UPDATE триггеры)
+
+	Через аргумент OLD есть доступ к вставленным и удаленным строкам (UPDATE/DELETE триггеры)
+
+	Возвращаемое значение из построчного AFTER-триггера (или и из BEFORE и из AFTER триггеров на утверждения) игнорируется => можно возвращать NULL
+
+	Если построчный AFTER-триггер или триггер на утверждение хочет отменить операцию => делаем raise exception
+
+
+"ТРИГГЕРЫ НА УТВЕРЖДЕНИЯ"
+
+Создание триггера:
+CREATE TRIGGER trigger_name() condition ON table_name
+REFERENCING [NEW, OLD] TABLE AS ref_table_name
+FOR EACH STATEMENT EXECUTE PROCEDURE function_name();
+
+	Необходимо задекларировать референсную таблицу (через REFERENCING)
+
+	В функции доступна переменная TG_OP, хранящая тип операции (INSERT, UPDATE, DELETE)
+
+	Такие триггеры часто используются для настройки аудита

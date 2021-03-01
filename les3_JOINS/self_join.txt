@@ -1,0 +1,7 @@
+SELF JOIN чаще нужен, чтобы построить некую иерархию. Внутри одной таблицы
+
+SELECT e.first_name || ' ' || e.column2, AS emloyee
+	   m.first_name || ' ' || m.column2, AS manager
+FROM emloyee e
+LEFT JOIN emloyee m ON m.emloyee_id = e.manager_id
+ORDER BY manager

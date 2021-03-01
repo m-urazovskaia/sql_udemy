@@ -1,0 +1,23 @@
+CREATE FUNCTION func_name([arg1, arg2...]) RETURNS data)type AS $$
+--logic
+$$ LANGUAGE lang
+
+# раньше для обозначения тела функции вместо $$ использовали кавычки
+
+CREATE OR REPLACE func_name... модификация уже существующей функции
+
+SELECT *
+INTO tmp_customers
+FROM customers;
+
+UPDATE tmp_customers
+SET region = 'unknown'
+WHERE region IS NULL;
+
+CREATE OR REPLACE FUNCTION fix_customer_region() RETURNS void AS $$ --пусто, ничего не возвращает
+	UPDATE tmp_customers
+	SET region = 'unknown'
+	WHERE region IS NULL
+$$ language SQL;
+
+SELECT fix_customer_region(); --ничего не возвращает (null здесть не имеет отношения к NULL в таблице)

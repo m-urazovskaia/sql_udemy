@@ -1,0 +1,64 @@
+Если есть проблема с производительностью - надо понять, откуда "растут ноги"
+EXPLAIN query (обычно select) позволяет вместо конечного результата посмотреть план выполнения запроса
+EXPLAIN ANALYZE query прогоняет запрос, показывает план и реальность
+
+ANALYZE:
+	собирает статистику п оданным таблицы и вкладывает результат в pgstatistic таблицу (табл называется pgstatisticpg_statistic)
+	планировщик смотрит на статистику при построении плана
+	ANALYZE[table_name[(column1, column2...)]]
+	Запускать как минимум один раз в день (зависит от объема данных)
+	autovacuum (если ваключен) в том числе запускает ANALYZE
+
+
+CREATE TABLE perf_test
+(
+	id int,
+	reason text COLLATE "C",
+	annotation text COLLATE "C"
+);
+
+INSERT INTO perf_test(id, reason, annotation)
+SELECT s.id, md5(random()::text), null
+FROM generate_series(1, 10000000) AS s(id)
+ORDER BY random();
+
+UPDATE perf_test
+SET annotation = UPPER(md5(random()::text));
+
+SELECT * FROM perf_test
+WHERE id = 3700000; --запрос выполняется больше 2 сек, что довольно долго, узнаем, почему:
+
+EXPLAIN
+SELECT * 
+FROM perf_test
+WHERE id = 3700000; -- 'seq scan' - последовательное чтение. Можно изменить с помощью постройки индекса по id:
+
+CREATE INDEX idx_perf_test_id ON perf_test(id); - теперь запрос будет исполняться ч/з индексное сканирование и занимать меньше времени
+
+
+EXPLAIN ANALYZE -- 'analyze' ускоряет чтение
+SELECT *
+FROM perf_test
+WHERE reason LIKE 'bc%' AND annotation LIKE 'AB%'; -- снова последовательное чтение и долгое изменение запроса
+
+--ANALYZE perf_test
+
+Индексирование по двум колонкам сразу:
+CREATE INDEX idx_perf_test_reason_annotation ON perf_test(																			reason,annotation); - теперь запрос будет исполняться ч/з индексное сканирование и занимать меньше времени
+
+Построение индекса сразу по двум колонкам дает возможность делать индексный поиск только по одной(первой) из них. Поиск по второй снова будет долгим, так как будет исполняться вновь последовательно
+SELECT *
+FROM perf_test
+WHERE reason LIKE 'bc%';
+
+CREATE INDEX idx_perf_test_annotation ON perf_test(annotation);
+
+Если поиск будет вестись в нижнем регистре (у нас столбец 'annotation' в верхнем):
+EXPLAIN
+SELECT *
+FROM perf_test
+WHERE LOWER(annotation) LIKE 'ab%'; -- поиск снова стал последовательным 											несмотря на созданный индекс! 												Нужно строить отдельный индекс или 											исключить такую ситуацию
+
+CREATE INDEX idx_perf_test_annotation_lower ON perf_test(LOWER(annotation));
+
+По выражениям индексирование автоматически не работает!
